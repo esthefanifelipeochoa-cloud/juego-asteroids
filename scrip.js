@@ -11,6 +11,16 @@ let bombas=[];
 let iz=false;
 let der=false;
 let mov=false;
+let meteoritos=[];  
+let naveViva = true; 
+for(let i=0;i<10;i++){
+    meteoritos.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        velx: (Math.random()-0.5)*4,
+        vely: (Math.random()-0.5)*4
+    });
+}
 document.addEventListener("keydown",(b)=>{
     if(b.key=="d"){
         der=true;    
@@ -33,8 +43,7 @@ document.addEventListener("keyup",(b)=>{
         iz=false;
     }
      if(b.key=="s"){
-        mov=false;
-        
+        mov=false;    
     }
 });
 
@@ -57,16 +66,16 @@ function dibujarNave(){
 
 function girarIzq(){
     angulo-=0.1;
-    dibujarNave();
+    
 }
 function girarDer(){
     angulo+=0.1;
-    dibujarNave();
+   
 }
 function avanzar(){
     x=x+5*Math.cos(angulo);
     y=y+5*Math.sin(angulo);
-    dibujarNave();
+    
 }
 function dibujarBombas(){
     bombas.forEach((bomba,pos)=>{
@@ -110,7 +119,13 @@ function dibujarMeteorito(x,y) {
    ctx.stroke();
    ctx.restore();
 }
-let meteoritos=[];   
+function reiniciarJuego(){
+    x = canvas.width / 2;
+    y = canvas.height / 2;
+    angulo = 0;
+    naveViva = true;
+    bombas = [];
+    meteoritos = [];
     for(let i=0;i<10;i++){
         meteoritos.push({
             x: Math.random()*canvas.width,
@@ -119,8 +134,14 @@ let meteoritos=[];
             vely: (Math.random()-0.5)*4
         });
     }
+
+    document.getElementById("reiniciar").style.display = "none";
+}
+
+document.getElementById("reiniciar").addEventListener("click", reiniciarJuego);
 function loop(){
      ctx.clearRect(0,0,canvas.width,canvas.height);
+     
     if(der){
         girarDer();
     }
@@ -145,12 +166,56 @@ function loop(){
         m.vely = Math.random() * 3 + 1;
         }
         dibujarMeteorito(m.x,m.y);
+        let dx = x - m.x;
+        let dy = y - m.y;
+
+    if (dx*dx + dy*dy < 30*30) {
+        naveViva = false;
+    }
+
+
     }
     )
-   
-    dibujarNave();
-    dibujarBombas();
-    requestAnimationFrame(loop);
-}
+    
+   for(let i = bombas.length - 1; i >= 0; i--){
+    for(let j = meteoritos.length - 1; j >= 0; j--){
 
+        let disX = bombas[i].x - meteoritos[j].x;
+        let disY= bombas[i].y - meteoritos[j].y;
+        let d = Math.sqrt(disX*disX + disY*disY);
+        
+        if(d < 20){
+            bombas.splice(i, 1);
+            meteoritos.splice(j, 1);
+            break;
+        }
+    }
+   }
+   if(meteoritos.length<10){
+      meteoritos.push({
+            x: Math.random()*canvas.width,
+            y: -20,
+            velx: (Math.random()-0.5)*4,
+            vely: Math.random()*3+1,
+            
+        });
+
+   }
+   
+    if (naveViva) {
+       dibujarNave();
+    }else{
+       mostrarGameOver();
+    }
+
+dibujarBombas();
+
+requestAnimationFrame(loop);
+}
+function mostrarGameOver(){
+    ctx.fillStyle = "white";
+    ctx.font = "50px Verdana";
+    ctx.fillText("GAME OVER", canvas.width/2 - 180, canvas.height/2);
+    document.getElementById("reiniciar").style.display = "block";
+}
 loop();

@@ -27,3 +27,13 @@ body{
    left: 67%;
    transform: translateX(-50);
 }
+#reiniciar {
+    position: fixed;
+    top: 60%;
+    left: 50%;
+    transform: translate(-70%, -50%);
+    z-index: 1000;
+    border-radius: 8px;
+    font-size: 20px;
+    font-family: 'Press Start 2P', cursive;
+}
